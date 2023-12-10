@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 
 
@@ -24,6 +25,22 @@ class Node{
 }
 
 class Task2{
+
+    //copied form https://www.baeldung.com/java-least-common-multiple
+    public static long lcm(long number1, long number2) {
+        if (number1 == 0 || number2 == 0) {
+            return 0;
+        }
+        long absNumber1 = Math.abs(number1);
+        long absNumber2 = Math.abs(number2);
+        long absHigherNumber = Math.max(absNumber1, absNumber2);
+        long absLowerNumber = Math.min(absNumber1, absNumber2);
+        long lcm = absHigherNumber;
+        while (lcm % absLowerNumber != 0) {
+            lcm += absHigherNumber;
+        }
+        return lcm;
+    }
 
     public static void main(String[] args){
 
@@ -56,35 +73,39 @@ class Task2{
                 //found a starting node
                 if(nodeName.charAt(nodeName.length() - 1) == 'A'){
                     curNodes.add(node);
-                    System.out.println(nodeName);
                 }
 			}
 			input.close();
 
-            int steps = 0;
-            int instrInd = 0;
-            boolean finished = false;
-            while(!finished){
-                finished = true;
-                char curInstr = instructions.charAt(instrInd % instructions.length());
-                for(int i = 0; i < curNodes.size(); i++){
-                    if(curInstr == 'L'){
-                        curNodes.set(i, nameToNode.get(curNodes.get(i).left));
+            long ans = 1;
+            for(int i = 0; i < curNodes.size(); i++){
+                int steps = 0;
+                int instrInd = 0;
+                Node curNode = curNodes.get(i);
+                HashMap<String, Integer> visited = new HashMap<String, Integer>();
+                boolean looped = false;
+                
+                while(!looped){
+                    visited.put(curNode.name + instrInd, steps);
+                    if(instructions.charAt(instrInd) == 'L'){
+                        curNode = nameToNode.get(curNode.left);
                     }
                     else{
-                        curNodes.set(i, nameToNode.get(curNodes.get(i).right));
+                        curNode = nameToNode.get(curNode.right);
                     }
+                    steps++;
+                    instrInd = (instrInd + 1) % instructions.length();
 
-                    if(!curNodes.get(i).finish){
-                        finished = false;
+                    if(visited.containsKey(curNode.name + instrInd) && curNode.finish){
+                        looped = true;
+                        int loopLen = steps - visited.get(curNode.name + instrInd);
+                        System.out.println(curNode.name + instrInd + " : " + loopLen);
+                        ans = lcm(ans, loopLen);
                     }
-                
                 }
-                instrInd++;
-                steps++;
             }
 
-            System.out.println(steps);
+            System.out.println(ans);
         }
         catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
