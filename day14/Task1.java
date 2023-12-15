@@ -8,7 +8,7 @@ class Task1{
     public static void main(String[] args){
 
         try{
-            File inputFile = new File("day14_input.txt");
+            File inputFile = new File("day14_test.txt");
             Scanner input = new Scanner(inputFile);
           
 
